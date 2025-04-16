@@ -7,6 +7,7 @@ from homeassistant.components.sensor import (
 )
 from homeassistant.const import PERCENTAGE, UnitOfDataRate, UnitOfInformation
 
+VERSION = "1.20b3"
 DOMAIN = "monitor_docker"
 API = "api"
 CONFIG = "config"
@@ -23,7 +24,7 @@ CONF_PRECISION_NETWORK_KB = "precision_network_kb"
 CONF_PRECISION_NETWORK_MB = "precision_network_mb"
 CONF_PREFIX = "prefix"
 CONF_RENAME = "rename"
-CONF_RENAME_ENITITY = "rename_entity"
+CONF_RENAME_ENTITY = "rename_entity"
 CONF_RETRY = "retry"
 CONF_SENSORNAME = "sensorname"
 CONF_SWITCHENABLED = "switchenabled"

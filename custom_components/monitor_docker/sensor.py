@@ -29,7 +29,7 @@ from .const import (
     CONF_CONTAINERS_EXCLUDE,
     CONF_PREFIX,
     CONF_RENAME,
-    CONF_RENAME_ENITITY,
+    CONF_RENAME_ENTITY,
     CONF_SENSORNAME,
     CONFIG,
     CONTAINER,
@@ -46,6 +46,7 @@ from .const import (
     DOCKER_INFO_VERSION,
     DOCKER_MONITOR_LIST,
     DOMAIN,
+    VERSION,
 )
 from .helpers import DockerAPI, DockerContainerAPI
 
@@ -131,18 +132,18 @@ async def async_setup_platform(
             if allinone:
                 monitor_conditions = []
                 for variable in config[CONF_MONITORED_CONDITIONS]:
-                    if variable in CONTAINER_MONITOR_LIST and (
-                        network_available
-                        or (
-                            not network_available
-                            and variable not in CONTAINER_MONITOR_NETWORK_LIST
-                        )
-                    ):
-                        monitor_conditions += [variable]
+                    if variable in CONTAINER_MONITOR_LIST:
+                        if network_available: 
+                            # If network available, add all network sensors
+                            monitor_conditions += [variable]
+                        elif variable not in CONTAINER_MONITOR_NETWORK_LIST:
+                            # If network not available, add all other sensors
+                            monitor_conditions += [variable]
+
 
                 # Only force rename of entityid is requested, to not break backwards compatibility
                 alias_entityid = cname
-                if config[CONF_RENAME_ENITITY]:
+                if config[CONF_RENAME_ENTITY]:
                     alias_entityid = find_rename(config[CONF_RENAME], cname)
 
                 sensors += [
@@ -170,7 +171,7 @@ async def async_setup_platform(
 
                         # Only force rename of entityid is requested, to not break backwards compatibility
                         alias_entityid = cname
-                        if config[CONF_RENAME_ENITITY]:
+                        if config[CONF_RENAME_ENTITY]:
                             alias_entityid = find_rename(config[CONF_RENAME], cname)
 
                         sensors += [

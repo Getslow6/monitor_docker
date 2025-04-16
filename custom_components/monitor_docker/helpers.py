@@ -66,10 +66,9 @@ from .const import (
     DOCKER_STATS_MEMORY,
     DOCKER_STATS_MEMORY_PERCENTAGE,
     DOMAIN,
+    VERSION,
     PRECISION,
 )
-
-VERSION = "1.20b3"
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -104,14 +103,11 @@ class DockerAPI:
         self._dockerStopped = False
         self._subscribers: list[Callable] = []
         self._api: aiodocker.Docker = None
-
-        _LOGGER.debug("[%s]: Helper version: %s", self._instance, VERSION)
-
         self._interval: int = config[CONF_SCAN_INTERVAL].seconds
         self._retry_interval: int = config[CONF_RETRY]
-        _LOGGER.debug(
-            "[%s] CONF_SCAN_INTERVAL=%d, RETRY=%", self._interval, self._retry_interval
-        )
+
+        _LOGGER.debug("[%s]: Helper version: %s", self._instance, VERSION)
+        _LOGGER.debug("[%s] CONF_SCAN_INTERVAL=%d, RETRY=%", self._interval, self._retry_interval)
 
     async def init(self, startCount=0):
 
