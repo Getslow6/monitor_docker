@@ -29,7 +29,6 @@ from .const import (
     CONF_CONTAINERS_EXCLUDE,
     CONF_PREFIX,
     CONF_RENAME,
-    CONF_RENAME_ENTITY,
     CONF_SENSORNAME,
     CONFIG,
     CONTAINER,
@@ -140,12 +139,6 @@ async def async_setup_platform(
                             # If network not available, add all other sensors
                             monitor_conditions += [variable]
 
-
-                # Only force rename of entityid is requested, to not break backwards compatibility
-                alias_entityid = cname
-                if config[CONF_RENAME_ENTITY]:
-                    alias_entityid = find_rename(config[CONF_RENAME], cname)
-
                 sensors += [
                     DockerContainerSensor(
                         capi,
@@ -168,11 +161,6 @@ async def async_setup_platform(
                             and variable not in CONTAINER_MONITOR_NETWORK_LIST
                         )
                     ):
-
-                        # Only force rename of entityid is requested, to not break backwards compatibility
-                        alias_entityid = cname
-                        if config[CONF_RENAME_ENTITY]:
-                            alias_entityid = find_rename(config[CONF_RENAME], cname)
 
                         sensors += [
                             DockerContainerSensor(

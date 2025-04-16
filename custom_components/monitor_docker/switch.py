@@ -24,7 +24,6 @@ from .const import (
     CONF_CONTAINERS_EXCLUDE,
     CONF_PREFIX,
     CONF_RENAME,
-    CONF_RENAME_ENTITY,
     CONF_SWITCHENABLED,
     CONF_SWITCHNAME,
     CONFIG,
@@ -131,11 +130,6 @@ async def async_setup_platform(
                 or cname in config[CONF_SWITCHENABLED]
             ):
                 _LOGGER.debug("[%s] %s: Adding component Switch", instance, cname)
-
-                # Only force rename of entityid is requested, to not break backwards compatibility
-                alias_entityid = cname
-                if config[CONF_RENAME_ENTITY]:
-                    alias_entityid = find_rename(config[CONF_RENAME], cname)
 
                 switches.append(
                     DockerContainerSwitch(

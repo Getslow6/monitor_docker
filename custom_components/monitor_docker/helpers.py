@@ -149,8 +149,6 @@ class DockerAPI:
             session = None
             ssl_context = None
 
-
-
             # If is not empty or an Unix socket, then do check TCP/SSL
             if tpcConnection:
 
