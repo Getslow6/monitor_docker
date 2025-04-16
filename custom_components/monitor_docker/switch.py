@@ -85,8 +85,8 @@ async def async_setup_platform(
         for k in d:
             if re.match(k, item):
                 return d[k]
-
-        return item
+        # If no match found, use capitalized container name
+        return item.capitalize()
 
     if discovery_info is None:
         return
@@ -137,7 +137,6 @@ async def async_setup_platform(
                         instance=instance,
                         prefix=prefix,
                         cname=cname,
-                        alias_entityid=alias_entityid,
                         alias_name=find_rename(config[CONF_RENAME], cname),
                         name_format=config[CONF_SWITCHNAME],
                     )
@@ -168,7 +167,6 @@ class DockerContainerSwitch(SwitchEntity):
         instance: str,
         prefix: str,
         cname: str,
-        alias_entityid: str,
         alias_name: str,
         name_format: str,
     ):
@@ -178,7 +176,7 @@ class DockerContainerSwitch(SwitchEntity):
         self._cname = cname
         self._state = False
         self._entity_id: str = ENTITY_ID_FORMAT.format(
-            slugify(f"{self._prefix}_{alias_entityid}")
+            slugify(f"{self._prefix}_{self._cname}")
         )
         self._name = name_format.format(name=alias_name)
         self._removed = False

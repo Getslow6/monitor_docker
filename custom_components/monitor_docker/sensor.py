@@ -64,8 +64,8 @@ async def async_setup_platform(
         for k in d:
             if re.match(k, item):
                 return d[k]
-
-        return item
+        # If no match found, use capitalized container name
+        return item.capitalize()
 
     if discovery_info is None:
         return
@@ -145,7 +145,6 @@ async def async_setup_platform(
                         instance=instance,
                         prefix=prefix,
                         cname=cname,
-                        alias_entityid=alias_entityid,
                         alias_name=find_rename(config[CONF_RENAME], cname),
                         description=CONTAINER_MONITOR_LIST[CONTAINER_INFO_ALLINONE],
                         sensor_name_format=config[CONF_SENSORNAME],
@@ -168,7 +167,6 @@ async def async_setup_platform(
                                 instance=instance,
                                 prefix=prefix,
                                 cname=cname,
-                                alias_entityid=alias_entityid,
                                 alias_name=find_rename(config[CONF_RENAME], cname),
                                 description=CONTAINER_MONITOR_LIST[variable],
                                 sensor_name_format=config[CONF_SENSORNAME],
@@ -284,7 +282,6 @@ class DockerContainerSensor(SensorEntity):
         instance: str,
         prefix: str,
         cname: str,
-        alias_entityid: str,
         alias_name: str,
         description: SensorEntityDescription,
         sensor_name_format: str,
@@ -302,18 +299,18 @@ class DockerContainerSensor(SensorEntity):
 
         if self.entity_description.key == CONTAINER_INFO_ALLINONE:
             self._entity_id = ENTITY_ID_FORMAT.format(
-                slugify(f"{self._prefix}_{alias_entityid}")
+                slugify(f"{self._prefix}_{self._cname}")
             )
             self._attr_name = ENTITY_ID_FORMAT.format(
-                slugify(f"{self._prefix}_{alias_entityid}")
+                slugify(f"{self._prefix}_{self._cname}")
             )
             self._attr_name = sensor_name_format.format(
                 name=alias_name, sensorname="", sensor=""
-            )
+            )   
         else:
             self._entity_id = ENTITY_ID_FORMAT.format(
                 slugify(
-                    f"{self._prefix}_{alias_entityid}_{self.entity_description.name}"
+                    f"{self._prefix}_{self._cname}_{self.entity_description.name}"
                 )
             )
             self._attr_name = sensor_name_format.format(

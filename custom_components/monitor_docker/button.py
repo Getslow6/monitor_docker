@@ -85,8 +85,8 @@ async def async_setup_platform(
         for k in d:
             if re.match(k, item):
                 return d[k]
-
-        return item
+        # If no match found, use capitalized container name
+        return item.capitalize()
 
     if discovery_info is None:
         return
@@ -137,7 +137,6 @@ async def async_setup_platform(
                         instance=instance,
                         prefix=prefix,
                         cname=cname,
-                        alias_entityid=alias_entityid,
                         alias_name=find_rename(config[CONF_RENAME], cname),
                         name_format=config[CONF_BUTTONNAME],
                     )
@@ -167,7 +166,6 @@ class DockerContainerButton(ButtonEntity):
         instance: str,
         prefix: str,
         cname: str,
-        alias_entityid: str,
         alias_name: str,
         name_format: str,
     ):
