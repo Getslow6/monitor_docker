@@ -119,21 +119,30 @@ class DockerAPI:
         self._api = None
 
         try:
-            # Try to fix unix:// to unix:/// (3 are required by aiodocker)
+            # Connection should be either a Unix socket or TCP connection
             url: str = self._config[CONF_URL]
+            unixConnection = url is not None and url.find("unix:") == 0
+            tpcConnection = url is not None and not unixConnection
+
+            # Try to fix unix:// to unix:/// (3 are required by aiodocker)
             if (
-                url is not None
+                unixConnection
                 and url.find("unix://") == 0
                 and url.find("unix:///") == -1
             ):
                 url = url.replace("unix://", "unix:///")
 
-            # When we reconnect with tcp, we should delay - docker is maybe not fully ready
-            if startCount > 0 and url is not None and url.find("unix:") != 0:
-                await asyncio.sleep(5)
+            if url is not None:
+                _LOGGER.debug("%s: Docker URL is '%s'", self._instance, url)
+            else:
+                _LOGGER.debug(
+                    "%s: Docker URL is auto-detect (most likely using 'unix://var/run/docker.socket')",
+                    self._instance,
+                )
 
-            # Check if it is a tcp connection or not
-            tcpConnection = False
+            # When we reconnect with tcp, we should delay - docker is maybe not fully ready
+            if startCount > 0 and tpcConnection:
+                await asyncio.sleep(5)
 
             # Remove Docker environment variables
             os.environ.pop("DOCKER_TLS_VERIFY", None)
@@ -144,16 +153,10 @@ class DockerAPI:
             session = None
             ssl_context = None
 
-            if url is not None:
-                _LOGGER.debug("%s: Docker URL is '%s'", self._instance, url)
-            else:
-                _LOGGER.debug(
-                    "%s: Docker URL is auto-detect (most likely using 'unix://var/run/docker.socket')",
-                    self._instance,
-                )
+
 
             # If is not empty or an Unix socket, then do check TCP/SSL
-            if url is not None and url.find("unix:") == -1:
+            if tpcConnection:
 
                 # Check if URL is valid
                 if not (
@@ -1469,6 +1472,50 @@ class DockerContainerAPI:
 
         self._busy = True
         await self._restart()
+
+    #############################################################
+    async def update_container(self) -> None:
+        """Update the container by pulling the latest image and recreating it."""
+        _LOGGER.info("[%s] %s: Updating container", self._instance, self._name)
+
+        try:
+            # Get the container details
+            container_info = await self._container.show()
+            image_name = container_info["Config"]["Image"]
+
+            # Pull the latest image
+            _LOGGER.info("[%s] %s: Pulling latest image for %s", self._instance, self._name, image_name)
+            await self._api.images.pull(image_name)
+
+            # Stop the container
+            _LOGGER.info("[%s] %s: Stopping container", self._instance, self._name)
+            await self._container.stop(t=10)
+
+            # Remove the container
+            _LOGGER.info("[%s] %s: Removing container", self._instance, self._name)
+            await self._container.delete(force=True)
+
+            # Recreate the container with the same configuration
+            _LOGGER.info("[%s] %s: Recreating container", self._instance, self._name)
+            await self._api.containers.create_or_replace(
+                name=self._name,
+                config=container_info["Config"]
+            )
+
+            # Start the updated container
+            _LOGGER.info("[%s] %s: Starting updated container", self._instance, self._name)
+            self._container = await self._api.containers.get(self._name)
+            await self._container.start()
+
+            _LOGGER.info("[%s] %s: Container updated successfully", self._instance, self._name)
+
+        except Exception as err:
+            _LOGGER.error(
+                "[%s] %s: Failed to update container (%s)",
+                self._instance,
+                self._name,
+                str(err),
+            )
 
     #############################################################
     def get_name(self) -> str:
