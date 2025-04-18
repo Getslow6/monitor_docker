@@ -1662,11 +1662,33 @@ class DockerContainerEntity(Entity):
     ) -> None:
         """Initialize the base for Container entities."""
         container_info = container.get_info()
+
+        container_manufacturer = None
+        container_image = None
+        container_version = None
+
+        image = container_info[CONTAINER_INFO_IMAGE]
+        if image is not None and image != "":
+            # Image can be of the form {Host}/{Publisher}/{Image}:{version},
+            # where host, publisher and version can be optional
+            image_parts = image.split("/")
+
+            # If there are more than 2 parts, we can get the publisher
+            if len(image_parts) > 1: 
+                container_manufacturer = image_parts[-2].capitalize()
+            
+            # Split the last part again to retrieve possible version info
+            parts = image_parts[-1].split(":")
+            if len(parts) == 2:
+                container_version = parts[1]
+            container_image = parts[0]
+        
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"{instance}_container_{cname}")},
-            name=cname,
-            manufacturer="Docker",
-            model="Docker Container",
+            name=cname.capitalize(),
+            manufacturer=container_manufacturer,
+            model=container_image,
+            sw_version=container_version,
             entry_type=DeviceEntryType.SERVICE,
             via_device=(DOMAIN, f"{instance}_{container._config[CONF_URL]}"),
         )
