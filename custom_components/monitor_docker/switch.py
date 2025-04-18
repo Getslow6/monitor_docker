@@ -95,13 +95,6 @@ async def async_setup_platform(
                 "Service restart failed, container '%s' is not configured", cname
             )
 
-    def find_rename(d: dict[str, str], item: str) -> str:
-        for k in d:
-            if re.match(k, item):
-                return d[k]
-
-        return item
-
     if discovery_info is None:
         return
 
@@ -182,7 +175,9 @@ class DockerContainerSwitch(SwitchEntity, DockerContainerEntity):
         self._attr_unique_id: str = ENTITY_ID_FORMAT.format(
             slugify(f"{self._instance}_{self._cname}")
         )
-        self._name = f"{self._instance} {self._cname}"
+        self._name = self._cname.capitalize()
+        self._attr_has_entity_name = True
+        self.entity_id = f"switch.{self._instance}_{self._cname}"
         self._removed = False
 
     @property

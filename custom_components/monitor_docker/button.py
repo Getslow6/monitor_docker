@@ -96,13 +96,6 @@ async def async_setup_platform(
                 "Service restart failed, container '%s' is not configured", cname
             )
 
-    def find_rename(d: dict[str, str], item: str) -> str:
-        for k in d:
-            if re.match(k, item):
-                return d[k]
-
-        return item
-
     if discovery_info is None:
         return
 
@@ -183,7 +176,10 @@ class DockerContainerButton(ButtonEntity, DockerContainerEntity):
         self._attr_unique_id = ENTITY_ID_FORMAT.format(
             slugify(f"{self._instance}_{self._cname}_restart")
         )
-        self._attr_name = f"{self._instance} {self._cname} Restart"
+
+        self._attr_has_entity_name = True
+        self._attr_name = "Restart container"
+        self.entity_id = f"button.{self._instance}_{self._cname}_restart"
         self._removed = False
 
     @property
@@ -192,7 +188,7 @@ class DockerContainerButton(ButtonEntity, DockerContainerEntity):
 
     @property
     def icon(self) -> str:
-        return "mdi:docker"
+        return "mdi:restart"
 
     @property
     def extra_state_attributes(self) -> dict:
