@@ -1,0 +1,71 @@
+Logger: homeassistant.components.sensor
+Source: helpers/entity_platform.py:451
+integration: Sensor (documentation, issues)
+First occurred: 10:53:56 PM (1 occurrence)
+Last logged: 10:53:56 PM
+
+Error while setting up monitor_docker platform for sensor: 'image'
+Traceback (most recent call last):
+  File "/usr/src/homeassistant/homeassistant/helpers/entity_platform.py", line 451, in _async_setup_platform
+    await asyncio.shield(awaitable)
+  File "/config/custom_components/monitor_docker/sensor.py", line 59, in async_setup_entry
+    await async_setup_platform(
+    ...<4 lines>...
+    )
+  File "/config/custom_components/monitor_docker/sensor.py", line 168, in async_setup_platform
+    DockerContainerSensor(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        capi,
+        ^^^^^
+    ...<2 lines>...
+        description=CONTAINER_MONITOR_LIST[variable],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/config/custom_components/monitor_docker/sensor.py", line 291, in __init__
+    super().__init__(container, instance, cname)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/config/custom_components/monitor_docker/helpers.py", line 1570, in __init__
+    image = container_info[CONTAINER_INFO_IMAGE]
+            ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+KeyError: 'image'
+
+
+
+
+
+
+
+
+Logger: homeassistant.components.switch
+Source: helpers/entity_platform.py:451
+integration: Switch (documentation, issues)
+First occurred: 10:53:56 PM (1 occurrence)
+Last logged: 10:53:56 PM
+
+Error while setting up monitor_docker platform for switch: 'image'
+Traceback (most recent call last):
+  File "/usr/src/homeassistant/homeassistant/helpers/entity_platform.py", line 451, in _async_setup_platform
+    await asyncio.shield(awaitable)
+  File "/config/custom_components/monitor_docker/switch.py", line 46, in async_setup_entry
+    await async_setup_platform(
+    ...<4 lines>...
+    )
+  File "/config/custom_components/monitor_docker/switch.py", line 126, in async_setup_platform
+    DockerContainerSwitch(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        api.get_container(cname),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^
+        instance=instance,
+        ^^^^^^^^^^^^^^^^^^
+        cname=cname,
+        ^^^^^^^^^^^^
+    )
+    ^
+  File "/config/custom_components/monitor_docker/switch.py", line 156, in __init__
+    super().__init__(container, instance, cname)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/config/custom_components/monitor_docker/helpers.py", line 1570, in __init__
+    image = container_info[CONTAINER_INFO_IMAGE]
+            ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+KeyError: 'image'
